@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</head>
+<body>
+	<div class="container">	
+		<div class="jumbotron">
+			<h1><i class="fa fa-facebook-square" aria-hidden="true"></i> Friend Finder</h1>
+			<hr>
+			<form id="member">
+				<h2>Your name (required):</h2>
+				<input type="text" class="required" name="memberName" size="40" />
+				<h2>Link to an online photo (required):</h2>
+				<input type="text" class="required" name="onlinePic" size="80" />
+				<h3>Respond to the following statements by stating how well you agree:</h3>
+				<ol id="orderedList">
+				</ol>
+				<button type="submit" class="btn btn-primary btn-lg btn-block" id="submit" data-toggle="modal" data-target="#theModal">
+					<i class="fa fa-check-circle" aria-required="true"></i> Submit
+				</button>
+			</form>
+			<br>
+		</div>
+	    <footer class="footer">
+	      <div class="container">
+		        <p><a href="/api/friends" target="_blank">API Friends List</a> | <a href="https://github.com/EdgarAhDzib/FriendFinder" target="_blank">GitHub Repo</a></p>
+	      </div>
+	    </footer>
+	</div>
+	<!-- The modal -->
+	<div id="theModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<!-- The modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h2 class="modal-title">Your Match!</h2>
+				</div>
+				<div class="modal-body">
+					<p>
+						<div id="theMatchName"></div>
+					</p>
+					<hr>
+					<div><img id="theMatchPic"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+<script type="text/javascript">
+
+var questionList = "";
+
+//Array of questions for the loop
+var questionArray = [
+	"Travel to foreign countries is important for life experience.",
+	"I cannot live without pets.",
+	"I prefer staying home on weekend nights.",
+	"If I were told that the next statement is true, but that the past statement was a lie, I would believe it.",
+	"I like dining out.",
+	"I enjoy spending time in nature.",
+	"Personal space is important for a relationship.",
+	"Common political views are important for a relationship.",
+	"Online questionnaires are handy for finding a matching partner.",
+	"The spice must flow."
+];
+
+//Loop to generate questions
+for (i=0; i<10; i++) {
+
+	var radioLine = "";
+
+	//Loop to generate radio buttons valued from 1 to 5 for each question
+	for (j=1; j<6; j++) {
+		radioLine += '<div class="radio-inline"><label><input type="radio" name="q' + (i+1) + '" value="' + j + '" aria-required="true">' + j + '</label></div>';
+	}
+
+	questionList += '<li>' + questionArray[i] + '<br/><br/><div><span><em>Strongly disagree</em> </span><span>' + radioLine + '</span><span> <em>Strongly agree</em></span></div><br/><br/></li>';
+}
+
+//Insert the generated questionnaire to the OL element
+$("#orderedList").html(questionList);
+
+$("#submit").on("click", function(){
+
+	// Build user stats object
+	var memberStats = {
+	name: $("input[name='memberName']").val(),
+	photo: $("input[name='onlinePic']").val(),
+	scores: [parseInt($("input:radio[name='q1']:checked").val()), parseInt($("input:radio[name='q2']:checked").val()), parseInt($("input:radio[name='q3']:checked").val()), parseInt($("input:radio[name='q4']:checked").val()), parseInt($("input:radio[name='q5']:checked").val()), parseInt($("input:radio[name='q6']:checked").val()), parseInt($("input:radio[name='q7']:checked").val()), parseInt($("input:radio[name='q8']:checked").val()), parseInt($("input:radio[name='q9']:checked").val()), parseInt($("input:radio[name='q10']:checked").val())]
+	};
+
+	// Form validation
+	function validate() {
+		var valid = true;
+		$('.required').each(function() {
+			if ( $(this).val() === '' ){
+				valid = false;
+			}
+		// Check that all lines are answered and that the values are numeric
+		for (i=0; i<memberStats.scores.length; i++) {
+			if ( $.isNumeric(memberStats.scores[i]) === false) {
+				valid = false;
+			}
+		}
+	});
+
+	return valid;
+	}
+
+	if (validate() === true) {
+
+		// Current URL
+		var currURL = window.location.origin;
+
+		// AJAX post the data to the friends API
+		$.post(currURL + "/api/friends", memberStats, function(result){
+	
+			// Display the best match's name and image
+			$("#theMatchName").text(result.match.name);
+			$("#theMatchPic").attr("src", result.match.pic).attr("width","200");
+	
+			// Show the modal with the best match 
+			$("#theModal").modal("toggle");
+		});
+
+	} else {
+		alert("Please fill out all fields before submitting!");
+	}
+
+	return false;
+});
+
+</script>
+</body>
+</html>

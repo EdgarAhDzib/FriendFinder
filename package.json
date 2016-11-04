@@ -1,0 +1,31 @@
+{
+  "name": "friendfinder",
+  "version": "1.0.0",
+  "description": "A survey-based application for friend-matching",
+  "main": "home.html",
+  "scripts": {
+    "test": "server",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EdgarAhDzib/FriendFinder.git"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "body-parser": "^1.15.2"
+  },
+  "keywords": [
+    "server",
+    "routing",
+    "survey",
+    "array",
+    "alias"
+  ],
+  "author": "Edgar Martin del Campo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EdgarAhDzib/FriendFinder/issues"
+  },
+  "homepage": "https://github.com/EdgarAhDzib/FriendFinder#readme"
+}
